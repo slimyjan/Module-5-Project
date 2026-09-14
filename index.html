@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JavaScript Final Project - Movie Search</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Navigation Header -->
+  <header>
+    <nav class="navbar">
+      <div class="logo">
+        <a href="index.html" class="logo-link">MovieFinder</a>
+      </div>
+      <ul class="nav-links">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer">TMDb API Settings</a></li>
+        <li><a href="https://developer.mozilla.org/en-US/docs/Web/JavaScript" target="_blank" rel="noopener noreferrer">JS Guide</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Main Content Area -->
+  <main>
+    <!-- Search and Filter Section -->
+    <section class="search-section">
+      <h1>Search Movies & Series</h1>
+      <p class="subtitle">Powered by <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">TMDb</a></p>
+      
+      <form id="search-form">
+        <!-- Search Bar -->
+        <input 
+          type="text" 
+          id="search-input" 
+          placeholder="Type a title (e.g. Batman)..." 
+          required
+        >
+
+        <!-- Filter Feature -->
+        <select id="type-filter">
+          <option value="multi">All Types</option>
+          <option value="movie">Movies</option>
+          <option value="tv">TV Shows</option>
+        </select>
+
+        <button type="submit" id="search-btn">Search</button>
+      </form>
+    </section>
+
+    <!-- Results Display Section -->
+    <section class="results-section">
+      <!-- Loading State Spinner -->
+      <div id="loading-spinner" class="spinner hidden">
+        <div class="loader"></div>
+        <p>Loading results...</p>
+      </div>
+
+      <!-- Container where dynamic movie cards with posters will load -->
+      <div id="results-container" class="results-grid"></div>
+    </section>
+  </main>
+
+  <!-- Footer Section -->
+  <footer>
+    <p>&copy; 2026 MovieFinder Project. Built with HTML, CSS, and JavaScript.</p>
+    <p class="footer-links">
+      <a href="https://github.com" target="_blank" rel="noopener noreferrer">GitHub Repository</a> | 
+      <a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener noreferrer">TMDb API Reference</a>
+    </p>
+  </footer>
+
+  <script src="script.js"></script>
+</body>
+</html>
