@@ -1,5 +1,5 @@
-// Replace with your TMDb API Key or Bearer Token
-const API_KEY = '2b4db841def91e19f8157c25d4c4b43d';
+// Replace with your TMDb API Key
+const API_KEY = '2b4db841def91e19f8157c25d4c4b43dg';
 const BASE_URL = 'https://api.themoviedb.org/3';
 const IMAGE_BASE_URL = 'https://image.tmdb.org/t/p/w500';
 
@@ -10,12 +10,24 @@ const typeFilter = document.getElementById('type-filter');
 const resultsContainer = document.getElementById('results-container');
 const loadingSpinner = document.getElementById('loading-spinner');
 
-// Handle Form Submission
-searchForm.addEventListener('submit', async (e) => {
+// 1. Event Listener: Form Submission
+searchForm.addEventListener('submit', (e) => {
   e.preventDefault();
-  
+  executeSearch();
+});
+
+// 2. Event Listener: Filter Selection Change
+typeFilter.addEventListener('change', () => {
   const query = searchInput.value.trim();
-  const selectedType = typeFilter.value; // 'multi', 'movie', or 'tv'
+  if (query) {
+    executeSearch();
+  }
+});
+
+// Main Search Controller
+async function executeSearch() {
+  const query = searchInput.value.trim();
+  const selectedType = typeFilter.value || 'multi';
 
   if (!query) return;
 
@@ -24,59 +36,51 @@ searchForm.addEventListener('submit', async (e) => {
 
   try {
     const data = await fetchSearchResults(query, selectedType);
-    displayResults(data.results);
+    
+    if (data && data.results && data.results.length > 0) {
+      displayResults(data.results);
+    } else {
+      resultsContainer.innerHTML = '<p class="no-results">No results found matching your query.</p>';
+    }
   } catch (error) {
-    console.error('Fetch error:', error);
-    resultsContainer.innerHTML = `<p class="error-msg">Failed to load results. Please try again.</p>`;
+    console.error('Search error:', error);
+    resultsContainer.innerHTML = '<p class="error-msg">Failed to load results. Please try again.</p>';
   } finally {
     showSpinner(false);
   }
-});
+}
 
-// Fetch Data from TMDb API
+// Fetch Logic for TMDb API
 async function fetchSearchResults(query, type) {
-  // 1. Sanitize the filter input to match valid TMDb endpoints
-  let endpointType = 'movie'; // Default fallback
-
-  if (type === 'tv' || type === 'series') {
-    endpointType = 'tv';
-  } else if (type === 'multi') {
-    endpointType = 'multi';
-  } else if (type === 'movie') {
-    endpointType = 'movie';
-  }
+  let endpointType = 'multi';
+  if (type === 'movie') endpointType = 'movie';
+  if (type === 'tv' || type === 'series') endpointType = 'tv';
 
   const url = `${BASE_URL}/search/${endpointType}?api_key=${API_KEY}&query=${encodeURIComponent(query)}&include_adult=false`;
 
-  console.log('Requesting URL:', url);
-
   const response = await fetch(url);
-  
   if (!response.ok) {
-    throw new Error(`HTTP Error ${response.status}: Failed to fetch from ${url}`);
+    throw new Error(`HTTP Error ${response.status}`);
   }
-
   return await response.json();
 }
+
 // Render Movie / TV Cards to DOM
 function displayResults(items) {
-  if (!items || items.length === 0) {
-    resultsContainer.innerHTML = '<p class="no-results">No titles found matching your query.</p>';
-    return;
-  }
+  resultsContainer.innerHTML = '';
 
   items.forEach(item => {
-    // Handle differences between Movies and TV shows in TMDb response payloads
+    // Skip non-movie/TV entries (e.g. actors/people in multi-search)
+    if (item.media_type && item.media_type === 'person') return;
+
     const title = item.title || item.name || 'Untitled';
     const releaseDate = item.release_date || item.first_air_date || 'Unknown Date';
     const mediaType = item.media_type ? item.media_type.toUpperCase() : '';
     
-    // Construct Poster Image URL (or fallback placeholder if missing)
     const posterSrc = item.poster_path 
       ? `${IMAGE_BASE_URL}${item.poster_path}` 
       : 'https://via.placeholder.com/500x750?text=No+Poster+Available';
 
-    // Create Card Container Element
     const card = document.createElement('div');
     card.classList.add('movie-card');
 
@@ -97,6 +101,7 @@ function displayResults(items) {
 
 // Toggle Spinner State
 function showSpinner(isVisible) {
+  if (!loadingSpinner) return;
   if (isVisible) {
     loadingSpinner.classList.remove('hidden');
   } else {
